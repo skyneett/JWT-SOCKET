@@ -1,0 +1,29 @@
+Resumen del proyecto JWT + Socket.IO
+
+¿Se puede chatear con otras personas?
+Sí, cualquier persona que abra la página y se autentique con un nombre de usuario podrá enviar y recibir mensajes en tiempo real. Todos los usuarios conectados verán los mensajes enviados por cualquier otro usuario.
+
+Estructura y funcionamiento:
+- El backend usa Express para crear un servidor HTTP y Socket.IO para la comunicación en tiempo real.
+- JWT (JSON Web Token) se usa para autenticar a los usuarios. Cada usuario obtiene un token al iniciar sesión.
+- El frontend (index.html) permite iniciar sesión con un nombre de usuario y luego chatear en tiempo real.
+- Los mensajes enviados se transmiten a todos los usuarios conectados.
+
+Archivos principales:
+- .env: Variables de entorno (puerto y clave secreta JWT)
+- src/index.js: Lógica del servidor, autenticación y chat
+- src/public/index.html: Interfaz web del chat
+
+Flujo:
+1. El usuario ingresa un nombre y hace login (POST /login)
+2. El servidor responde con un token JWT
+3. El frontend se conecta a Socket.IO usando ese token
+4. El servidor valida el token antes de aceptar la conexión
+5. Los mensajes enviados se transmiten a todos los usuarios conectados
+
+Notas:
+- No hay persistencia de usuarios ni mensajes (todo es en memoria)
+- No hay distinción de salas, es un chat global
+- El sistema es solo para fines educativos y no debe usarse en producción sin mejoras de seguridad
+
+Para más detalles, revisa los comentarios en el código.
