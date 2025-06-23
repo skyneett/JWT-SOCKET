@@ -1,0 +1,38 @@
+PASO A PASO DEL PROYECTO JWT + SOCKET.IO
+
+1. Inicialización del proyecto Node.js:
+   - Se ejecutó `npm init -y` para crear el package.json.
+
+2. Instalación de dependencias:
+   - Se instalaron: express, socket.io, jsonwebtoken, dotenv, cors.
+   - Se instaló nodemon como dependencia de desarrollo.
+
+3. Creación de estructura de carpetas y archivos:
+   - Se crearon las carpetas `src/`, `src/middleware/` y `src/public/`.
+   - Se creó el archivo principal `src/index.js`.
+   - Se creó el archivo de entorno `.env`.
+   - Se creó el archivo de frontend `src/public/index.html`.
+
+4. Programación del backend:
+   - Se configuró Express y Socket.IO.
+   - Se implementó autenticación con JWT en la ruta `/login`.
+   - Se protegió la conexión de Socket.IO usando JWT.
+   - Se programó el manejo de mensajes en tiempo real.
+
+5. Programación del frontend:
+   - Se creó una interfaz HTML para login y chat.
+   - Se conectó el frontend al backend usando Socket.IO y JWT.
+   - Se actualizaron las URLs para usar la URL pública de Render.
+
+6. Configuración para despliegue en la nube (Render):
+   - Se subió el proyecto a GitHub.
+   - Se creó un nuevo servicio Web en Render.
+   - Se configuró el comando de inicio (`npm start`).
+   - Se agregaron las variables de entorno en Render.
+   - Se desplegó la app y se obtuvo la URL pública.
+
+7. Pruebas y ajustes finales:
+   - Se verificó que el chat funciona desde cualquier lugar usando la URL de Render.
+   - Se explicó cómo compartir el archivo HTML para que otros usuarios puedan chatear.
+
+NOTA: Los mensajes no se guardan, solo existen mientras el servidor está activo.
