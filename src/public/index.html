@@ -94,6 +94,15 @@
     <!-- Contenedor del chat, oculto hasta que el usuario inicie sesión -->
     <div id="chat-container">
         <h2>Chat</h2>
+        <!-- Selector de sala -->
+        <div id="room-select" style="display:none; margin-bottom:16px;">
+            <label for="room">Sala: </label>
+            <select id="room">
+                <option value="general">General</option>
+                <option value="visajosos">Visajosos</option>
+                <option value="clase">Clase</option>
+            </select>
+        </div>
         <div id="messages"></div>
         <input type="text" id="message" placeholder="Escribe tu mensaje">
         <button onclick="sendMessage()">Enviar</button>
@@ -197,6 +206,39 @@
             }
         }
 
+        let currentRoom = 'general';
+        const roomSelectDiv = document.getElementById('room-select');
+        const roomSelect = document.getElementById('room');
+
+        // Mostrar selector de sala solo en el chat
+        function showChatUI() {
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('chat-container').style.display = 'block';
+            roomSelectDiv.style.display = 'block';
+            showAnimatedBg(true);
+        }
+        function showLoginUI() {
+            document.getElementById('login-form').style.display = 'block';
+            document.getElementById('chat-container').style.display = 'none';
+            roomSelectDiv.style.display = 'none';
+            showAnimatedBg(false);
+            // Limpiar mensajes y campo de texto
+            document.getElementById('messages').innerHTML = '';
+            document.getElementById('message').value = '';
+        }
+
+        // Cambiar de sala
+        roomSelect.addEventListener('change', () => {
+            const newRoom = roomSelect.value;
+            if (newRoom !== currentRoom) {
+                currentRoom = newRoom;
+                document.getElementById('messages').innerHTML = '';
+                if (socket) {
+                    socket.emit('joinRoom', currentRoom);
+                }
+            }
+        });
+
         // Función para conectar a Socket.IO usando el token JWT
         function connectSocket() {
             socket = io('https://jwt-socket.onrender.com', {
@@ -208,6 +250,7 @@
             // Evento al conectar exitosamente
             socket.on('connect', () => {
                 console.log('Conectado al servidor');
+                socket.emit('joinRoom', currentRoom); // Unirse a la sala actual al conectar
                 resetInactivityTimer();
             });
 
@@ -234,7 +277,7 @@
             const message = messageInput.value;
             if (!message) return;
 
-            socket.emit('message', { message }); // Enviar mensaje al servidor
+            socket.emit('message', { message, room: currentRoom }); // Enviar mensaje a la sala actual
             messageInput.value = '';
             resetInactivityTimer();
         }
@@ -293,21 +336,6 @@
         createSquares();
         animateSquares();
         showAnimatedBg(false); // Oculto por defecto
-
-        // Mostrar fondo animado solo en el chat
-        function showChatUI() {
-            document.getElementById('login-form').style.display = 'none';
-            document.getElementById('chat-container').style.display = 'block';
-            showAnimatedBg(true);
-        }
-        function showLoginUI() {
-            document.getElementById('login-form').style.display = 'block';
-            document.getElementById('chat-container').style.display = 'none';
-            showAnimatedBg(false);
-            // Limpiar mensajes y campo de texto
-            document.getElementById('messages').innerHTML = '';
-            document.getElementById('message').value = '';
-        }
 
         // Al cargar, mostrar solo login
         showLoginUI();
