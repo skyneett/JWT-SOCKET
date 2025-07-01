@@ -304,6 +304,9 @@
             document.getElementById('login-form').style.display = 'block';
             document.getElementById('chat-container').style.display = 'none';
             showAnimatedBg(false);
+            // Limpiar mensajes y campo de texto
+            document.getElementById('messages').innerHTML = '';
+            document.getElementById('message').value = '';
         }
 
         // Al cargar, mostrar solo login
