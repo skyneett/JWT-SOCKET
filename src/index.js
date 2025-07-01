@@ -22,6 +22,9 @@ const io = socketIo(server, {
 // Middleware globales
 app.use(cors()); // Permitir solicitudes desde cualquier origen
 app.use(express.json()); // Permitir recibir JSON en las peticiones
+// Servir archivos estáticos desde la carpeta public
+const path = require('path');
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Ruta para autenticación de usuarios (login)
 app.post('/login', (req, res) => {
