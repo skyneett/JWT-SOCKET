@@ -32,6 +32,12 @@
         #chat-container {
             display: none;
         }
+        #countdown {
+            display: none;
+            color: red;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
@@ -50,9 +56,72 @@
         <button onclick="sendMessage()">Enviar</button>
     </div>
 
+    <!-- Elemento para mostrar la cuenta regresiva -->
+    <div id="countdown"></div>
+
     <script>
         let socket; // Variable para el socket
         let token;  // Variable para el token JWT
+        let inactivityTimeout; // Temporizador de inactividad
+        let countdownInterval; // Intervalo para la cuenta regresiva
+        const INACTIVITY_LIMIT = 3 * 60; // 3 minutos en segundos
+        let remainingSeconds = INACTIVITY_LIMIT;
+
+        // Crear y agregar el elemento de cuenta regresiva
+        const countdownDiv = document.getElementById('countdown');
+
+        // Función para mostrar la cuenta regresiva
+        function showCountdown() {
+            countdownDiv.style.display = 'block';
+            countdownDiv.textContent = `Tiempo de inactividad restante: ${formatTime(remainingSeconds)}`;
+        }
+
+        // Formatear segundos a mm:ss
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+            const s = (seconds % 60).toString().padStart(2, '0');
+            return `${m}:${s}`;
+        }
+
+        // Iniciar/reiniciar temporizador de inactividad
+        function resetInactivityTimer() {
+            clearTimeout(inactivityTimeout);
+            clearInterval(countdownInterval);
+            remainingSeconds = INACTIVITY_LIMIT;
+            countdownDiv.style.display = 'none';
+            if (document.getElementById('chat-container').style.display === 'block') {
+                countdownInterval = setInterval(() => {
+                    remainingSeconds--;
+                    if (remainingSeconds <= 30) {
+                        showCountdown();
+                    }
+                    if (remainingSeconds <= 0) {
+                        clearInterval(countdownInterval);
+                    }
+                }, 1000);
+            }
+            inactivityTimeout = setTimeout(() => {
+                logoutByInactivity();
+            }, INACTIVITY_LIMIT * 1000);
+        }
+
+        // Desconectar y volver al login por inactividad
+        function logoutByInactivity() {
+            token = null;
+            if (socket) socket.disconnect();
+            document.getElementById('chat-container').style.display = 'none';
+            document.getElementById('login-form').style.display = 'block';
+            countdownDiv.style.display = 'none';
+            alert('Sesión cerrada por inactividad');
+        }
+
+        // Detectar actividad del usuario
+        function setupInactivityListeners() {
+            ['mousemove', 'keydown', 'mousedown', 'touchstart'].forEach(event => {
+                document.addEventListener(event, resetInactivityTimer);
+            });
+            document.getElementById('message').addEventListener('input', resetInactivityTimer);
+        }
 
         // Función para iniciar sesión y obtener el token
         async function login() {
@@ -75,6 +144,8 @@
                     connectSocket(); // Conectar a Socket.IO
                     document.getElementById('login-form').style.display = 'none';
                     document.getElementById('chat-container').style.display = 'block';
+                    setupInactivityListeners();
+                    resetInactivityTimer();
                 }
             } catch (error) {
                 console.error('Error al iniciar sesión:', error);
@@ -93,6 +164,7 @@
             // Evento al conectar exitosamente
             socket.on('connect', () => {
                 console.log('Conectado al servidor');
+                resetInactivityTimer();
             });
 
             // Evento para recibir mensajes del servidor
@@ -120,6 +192,7 @@
 
             socket.emit('message', { message }); // Enviar mensaje al servidor
             messageInput.value = '';
+            resetInactivityTimer();
         }
 
         // Permitir enviar mensaje presionando Enter
